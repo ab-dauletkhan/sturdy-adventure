@@ -72,10 +72,6 @@ Icon?
 .env
 .env.*
 
-# Local databases
-*.sqlite3
-*.db
-
 # Coverage reports
 coverage.xml
 *.cover
