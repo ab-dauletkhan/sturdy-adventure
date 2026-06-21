@@ -1,0 +1,38 @@
+app = "qiym-shop"
+primary_region = "waw"
+
+[build]
+
+[env]
+  PORT = "8000"
+  PYTHONUNBUFFERED = "1"
+  DJANGO_DEBUG = "False"
+  DJANGO_ALLOWED_HOSTS = "qiym-shop.fly.dev,*.fly.dev"
+  CSRF_TRUSTED_ORIGINS = "https://qiym-shop.fly.dev,https://*.fly.dev"
+  MEDIA_ROOT = "/app/media"
+  SECURE_SSL_REDIRECT = "True"
+  SESSION_COOKIE_SECURE = "True"
+  CSRF_COOKIE_SECURE = "True"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+[mounts]
+  source = "media_data"
+  destination = "/app/media"
+
+[processes]
+  app = "python manage.py collectstatic --noinput && gunicorn kiim_shop.wsgi:application --bind 0.0.0.0:8000"
+
+[deploy]
+  release_command = "python manage.py migrate"

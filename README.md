@@ -55,6 +55,23 @@ python manage.py runserver
 
 Медиафайлы сохраняются в папку `media/` в корне проекта.
 
+## Deploy на Fly.io
+
+В репозитории есть `fly.toml`, `Dockerfile` и `.dockerignore` для запуска через Gunicorn на порту `8000`.
+
+Перед первым деплоем:
+
+```bash
+fly launch --no-deploy
+fly volumes create media_data --size 1
+fly secrets set SECRET_KEY="$(openssl rand -base64 48)"
+fly deploy
+```
+
+`fly.toml` запускает миграции через `python manage.py migrate`, собирает статику через `collectstatic` при старте приложения и монтирует volume в `/app/media` для загружаемых файлов.
+
+Сейчас проект использует SQLite (`db.sqlite3`). Для продакшена на Fly лучше подключить PostgreSQL; иначе данные SQLite не будут надежно жить между машинами и деплоями.
+
 ## Структура проекта
 
 ```
