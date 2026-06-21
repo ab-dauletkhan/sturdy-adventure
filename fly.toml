@@ -11,6 +11,7 @@ console_command = '/code/manage.py shell'
   DJANGO_ALLOWED_HOSTS = "sturdy-adventure.fly.dev,.fly.dev"
   CSRF_TRUSTED_ORIGINS = "https://sturdy-adventure.fly.dev,https://*.fly.dev"
   MEDIA_ROOT = "/code/media"
+  SQLITE_DATABASE_PATH = "/code/media/db.sqlite3"
   SECURE_SSL_REDIRECT = "True"
   SESSION_COOKIE_SECURE = "True"
   CSRF_COOKIE_SECURE = "True"
@@ -34,6 +35,3 @@ console_command = '/code/manage.py shell'
 
 [processes]
   app = "sh /code/scripts/start.sh"
-
-[deploy]
-  release_command = "python manage.py migrate"
