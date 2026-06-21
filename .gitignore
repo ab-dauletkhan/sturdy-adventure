@@ -72,6 +72,9 @@ Icon?
 .env
 .env.*
 
+# Collected static files
+staticfiles/
+
 # Coverage reports
 coverage.xml
 *.cover
