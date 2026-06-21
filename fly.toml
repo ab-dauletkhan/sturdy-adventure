@@ -8,9 +8,9 @@ console_command = '/code/manage.py shell'
   PORT = "8000"
   PYTHONUNBUFFERED = "1"
   DJANGO_DEBUG = "False"
-  DJANGO_ALLOWED_HOSTS = "qiym-shop.fly.dev,*.fly.dev"
-  CSRF_TRUSTED_ORIGINS = "https://qiym-shop.fly.dev,https://*.fly.dev"
-  MEDIA_ROOT = "/app/media"
+  DJANGO_ALLOWED_HOSTS = "sturdy-adventure.fly.dev,.fly.dev"
+  CSRF_TRUSTED_ORIGINS = "https://sturdy-adventure.fly.dev,https://*.fly.dev"
+  MEDIA_ROOT = "/code/media"
   SECURE_SSL_REDIRECT = "True"
   SESSION_COOKIE_SECURE = "True"
   CSRF_COOKIE_SECURE = "True"
@@ -24,17 +24,16 @@ console_command = '/code/manage.py shell'
   processes = ["app"]
 
 [[vm]]
-  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256
+  memory_mb = 512
 
-[[statics]]
-  guest_path = '/code/static'
-  url_prefix = '/static/'
+[mounts]
+  source = "media_data"
+  destination = "/code/media"
 
 [processes]
-  app = "python manage.py collectstatic --noinput && gunicorn kiim_shop.wsgi:application --bind 0.0.0.0:8000"
+  app = "sh /code/scripts/start.sh"
 
 [deploy]
   release_command = "python manage.py migrate"
