@@ -33,5 +33,9 @@ console_command = '/code/manage.py shell'
   source = "media_data"
   destination = "/code/media"
 
+[[statics]]
+  guest_path = "/code/media"
+  url_prefix = "/media/"
+
 [processes]
   app = "sh /code/scripts/start.sh"
