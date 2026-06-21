@@ -1,3 +1,6 @@
+fly.toml
+.git/
+*.sqlite3
 .git
 .venv
 __pycache__

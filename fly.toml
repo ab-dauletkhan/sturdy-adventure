@@ -1,5 +1,6 @@
-app = "qiym-shop"
-primary_region = "waw"
+app = 'sturdy-adventure'
+primary_region = 'iad'
+console_command = '/code/manage.py shell'
 
 [build]
 
@@ -23,13 +24,14 @@ primary_region = "waw"
   processes = ["app"]
 
 [[vm]]
-  cpu_kind = "shared"
+  memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 512
+  memory_mb = 256
 
-[mounts]
-  source = "media_data"
-  destination = "/app/media"
+[[statics]]
+  guest_path = '/code/static'
+  url_prefix = '/static/'
 
 [processes]
   app = "python manage.py collectstatic --noinput && gunicorn kiim_shop.wsgi:application --bind 0.0.0.0:8000"
