@@ -1,0 +1,39 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "new_collection.title" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+    <div class="mb-10">
+        <p class="text-[11px] uppercase tracking-[0.18em] text-q-gold font-semibold mb-2">{% translate "new_collection.new_badge" %}</p>
+        <h1 class="font-serif text-4xl text-q-black">{% translate "new_collection.heading" %}</h1>
+    </div>
+
+    {% if products %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        {% for product in products %}
+        <div class="product-card group">
+            <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4] relative">
+                <a href="{% url 'product_detail' product.pk %}">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                         class="product-img w-full h-full object-cover">
+                </a>
+                <span class="absolute top-2 left-2 bg-q-black text-white text-[10px] px-2 py-0.5 tracking-widest uppercase">{% translate "new_collection.new_badge" %}</span>
+            </div>
+            <div class="pt-3">
+                <a href="{% url 'product_detail' product.pk %}"
+                   class="text-sm font-medium text-q-black hover:text-q-gold transition-colors">{{ product.name }}</a>
+                <p class="text-sm text-q-gray mt-0.5">{{ product.price }} ₸</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-24">
+        <p class="font-serif text-2xl text-q-gray">{% translate "new_collection.empty" %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "order.title" id=order.id %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 lg:px-8 py-10">
+
+    <a href="{% url 'profile' %}"
+       class="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-q-gray hover:text-q-black transition-colors mb-10">
+        ← {% translate "order.back_btn" %}
+    </a>
+
+    <div class="flex items-start justify-between gap-4 mb-10">
+        <div>
+            <h1 class="font-serif text-3xl text-q-black">{% translate "order.heading" id=order.id %}</h1>
+            <p class="text-sm text-q-gray mt-1.5">{% translate "order.date_label" %} {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded flex-shrink-0 mt-1
+            {% if order.status == 'new' %}bg-[#FEF9C3] text-[#854D0E]
+            {% elif order.status == 'completed' %}bg-[#DCFCE7] text-[#166534]
+            {% elif order.status == 'cancelled' %}bg-[#FEE2E2] text-[#991B1B]
+            {% else %}bg-[#DBEAFE] text-[#1E40AF]{% endif %}">
+            {{ order.status|translate_status }}
+        </span>
+    </div>
+
+    <p class="text-[11px] uppercase tracking-widest text-q-gray mb-4">{% translate "order.items_heading" %}</p>
+    <div class="space-y-3 mb-10">
+        {% for item in items %}
+        <div class="flex items-center gap-5 bg-white border border-q-border rounded p-4">
+            <div class="w-20 h-20 flex-shrink-0 overflow-hidden rounded border border-q-border">
+                <img src="{{ item.variant.product.image.url }}" alt="{{ item.variant.product.name }}"
+                     class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow min-w-0">
+                <h3 class="font-medium text-q-black text-sm">{{ item.variant.product.name }}</h3>
+                <p class="text-xs text-q-gray mt-0.5">{% translate "order.size_color" size=item.variant.size color=item.variant.color %}</p>
+                <p class="text-xs text-q-gray">{% translate "order.qty_label" qty=item.quantity %}</p>
+            </div>
+            <span class="font-semibold text-q-black text-sm flex-shrink-0">{{ item.price|floatformat:0 }} ₸</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="bg-white border border-q-border rounded p-6 space-y-3 max-w-xs ml-auto">
+        <div class="flex justify-between text-sm">
+            <span class="text-q-gray">{% translate "order.total_label" %}</span>
+            <span class="font-semibold text-q-black">{{ order.total_price }} ₸</span>
+        </div>
+        {% if order.discount_applied > 0 %}
+        <div class="flex justify-between text-xs text-q-gray">
+            <span>{% translate "order.discount_applied" pct=order.discount_applied %}</span>
+        </div>
+        {% endif %}
+        {% if order.bonus_points_used > 0 %}
+        <p class="text-xs text-[#1E40AF]">{% translate "order.bonus_used" pts=order.bonus_points_used %}</p>
+        {% endif %}
+        {% if order.bonus_points_earned > 0 %}
+        <p class="text-xs text-[#166534]">{% translate "order.bonus_earned" pts=order.bonus_points_earned %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

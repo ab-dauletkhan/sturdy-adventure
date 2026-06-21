@@ -1,0 +1,120 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "checkout.title" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+    <h1 class="font-serif text-3xl md:text-4xl text-q-black mb-10">{% translate "checkout.heading" %}</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
+
+        <!-- Form -->
+        <div class="lg:col-span-3">
+            <div class="bg-white border border-q-border rounded p-6 lg:p-8">
+                <h2 class="font-serif text-xl text-q-black mb-6">{% translate "checkout.order_info" %}</h2>
+                <form method="post" class="space-y-5" id="checkout-form">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.first_name" %}</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.last_name" %}</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.last_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.phone" %}</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.phone.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.city" %}</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.city.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.address" %}</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.address.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <div class="bg-q-light border border-q-border rounded p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[11px] uppercase tracking-wide text-q-gray">{% translate "checkout.bonus_label" %}</span>
+                            <span class="font-serif text-2xl text-q-black">{{ available_points }}</span>
+                        </div>
+                        <p class="text-xs text-q-gray mb-3">{% translate "checkout.bonus_rate" value=bonus_value_per_point %}</p>
+                        <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "checkout.points_to_use" %}</label>
+                        {{ form.use_bonus_points }}
+                        {% if form.use_bonus_points.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.use_bonus_points.errors.0 }}</p>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit"
+                            class="w-full bg-q-black text-white py-4 text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors">
+                        {% translate "checkout.confirm_btn" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order summary -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-q-border rounded p-6 sticky top-24">
+                <h2 class="font-serif text-xl text-q-black mb-6">{% translate "checkout.your_items" %}</h2>
+                <div class="space-y-4" id="items-list">
+                    {% for item in items %}
+                    <div class="flex justify-between items-start pb-4 border-b border-q-border"
+                         data-price="{{ item.variant.product.price }}" data-quantity="{{ item.quantity }}">
+                        <div>
+                            <p class="text-sm font-medium text-q-black">{{ item.variant.product.name }}</p>
+                            <p class="text-xs text-q-gray mt-0.5">{{ item.variant.size }} / {{ item.variant.color }} × {{ item.quantity }}</p>
+                        </div>
+                        <span class="text-sm font-medium item-price whitespace-nowrap ml-4">{{ item.variant.product.price|floatformat:0 }} ₸</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-5 pt-1 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-q-gray">{% translate "checkout.subtotal" %}</span>
+                        <span class="font-medium" id="total-amount">{{ total|floatformat:0 }} ₸</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-semibold text-q-black">
+                        <span>{% translate "checkout.with_discount" %}</span>
+                        <span id="final-amount">{{ total|floatformat:0 }} ₸</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const totalAmount = parseFloat('{{ total }}');
+    const bonusValue = parseInt('{{ bonus_value_per_point }}');
+    const availablePoints = parseInt('{{ available_points }}');
+    const bonusInput = document.getElementById('use_bonus_points');
+    const finalSpan = document.getElementById('final-amount');
+
+    function updateTotal() {
+        if (!bonusInput) return;
+        let points = parseInt(bonusInput.value) || 0;
+        if (points > availablePoints) { points = availablePoints; bonusInput.value = points; }
+        const final = totalAmount - Math.min(points * bonusValue, totalAmount);
+        finalSpan.textContent = final.toFixed(0) + ' ₸';
+    }
+    if (bonusInput) bonusInput.addEventListener('input', updateTotal);
+    updateTotal();
+});
+</script>
+{% endblock %}
+{% endblock %}

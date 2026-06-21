@@ -1,0 +1,76 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "cart.title" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+    <h1 class="font-serif text-3xl md:text-4xl text-q-black mb-10">{% translate "cart.heading" %}</h1>
+
+    {% if items %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <!-- Items -->
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in items %}
+            <div class="flex gap-5 bg-white border border-q-border rounded p-4">
+                <div class="w-24 h-28 flex-shrink-0 overflow-hidden rounded border border-q-border">
+                    <img src="{{ item.variant.product.image.url }}" alt="{{ item.variant.product.name }}"
+                         class="w-full h-full object-cover">
+                </div>
+                <div class="flex-grow min-w-0 flex flex-col justify-between py-1">
+                    <div>
+                        <p class="font-medium text-q-black text-sm">{{ item.variant.product.name }}</p>
+                        <p class="text-q-gray text-xs mt-1">{{ item.variant.size }} / {{ item.variant.color }}</p>
+                    </div>
+                    <p class="text-q-black text-sm font-medium">{{ item.variant.product.price }} ₸</p>
+                </div>
+                <div class="flex flex-col items-end justify-between flex-shrink-0 py-1">
+                    <form method="post" action="{% url 'update_cart_item' item.id %}" class="flex items-center gap-2">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}"
+                               min="1" max="{{ item.variant.stock }}"
+                               class="w-14 border border-q-border rounded px-2 py-1 text-sm text-center focus:outline-none focus:border-q-amber bg-white">
+                        <button type="submit"
+                                class="text-xs text-q-gray hover:text-q-black underline transition-colors">{% translate "cart.update_btn" %}</button>
+                    </form>
+                    <a href="{% url 'remove_from_cart' item.id %}"
+                       class="text-xs text-q-gray hover:text-[#9B2C2C] transition-colors"
+                       onclick="return confirm('{% translate "cart.remove_confirm" %}')">{% translate "cart.remove_btn" %}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white border border-q-border rounded p-6 sticky top-24">
+                <h2 class="font-serif text-xl text-q-black mb-5">{% translate "cart.total_label" %}</h2>
+                <div class="flex justify-between items-center pb-4 border-b border-q-border mb-5">
+                    <span class="text-sm text-q-gray">{% translate "cart.total_label" %}</span>
+                    <span class="font-semibold text-q-black">{{ total }} ₸</span>
+                </div>
+                <a href="{% url 'checkout' %}"
+                   class="block w-full bg-q-black text-white text-center py-3.5 text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors">
+                    {% translate "cart.checkout_btn" %}
+                </a>
+                <a href="{% url 'home' %}"
+                   class="block text-center text-xs text-q-gray hover:text-q-black mt-4 underline transition-colors">
+                    {% translate "cart.start_shopping" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-24">
+        <p class="font-serif text-2xl text-q-gray mb-6">{% translate "cart.empty" %}</p>
+        <a href="{% url 'home' %}"
+           class="inline-block bg-q-black text-white px-10 py-3.5 text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors">
+            {% translate "cart.start_shopping" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

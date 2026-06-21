@@ -1,0 +1,207 @@
+{% load i18n_tags %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QIYM — {% block title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'q-black':  '#0C0C0C',
+                        'q-cream':  '#FAFAF8',
+                        'q-amber':  '#C9A96E',
+                        'q-gold':   '#7A5B2A',
+                        'q-gray':   '#4A4644',
+                        'q-light':  '#F3F0EB',
+                        'q-border': '#D8D4CE',
+                    },
+                    fontFamily: {
+                        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+                        sans:  ['"DM Sans"', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+
+        .horizontal-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #0C0C0C;
+            transition: width 0.25s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after { width: 100%; }
+
+        .product-img { transition: transform 0.5s ease; }
+        .product-card:hover .product-img { transform: scale(1.05); }
+
+        .swiper-button-next,
+        .swiper-button-prev { color: white !important; }
+        .swiper-pagination-bullet { background: white !important; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .msg-animate { animation: fadeSlideIn 0.2s ease; }
+    </style>
+</head>
+<body class="bg-q-cream font-sans flex flex-col min-h-screen text-q-black">
+
+    <!-- Announcement bar -->
+    <div class="bg-q-black text-white text-center py-2.5 text-[11px] tracking-[0.2em] uppercase select-none">
+        QIYM — {% translate "nav.site_subtitle" %}
+    </div>
+
+    <!-- Navbar -->
+    <header class="bg-white border-b border-q-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="flex-shrink-0 group">
+                    <span class="font-serif text-[22px] tracking-[0.22em] text-q-black group-hover:text-q-gold transition-colors duration-200">QIYM</span>
+                </a>
+
+                <!-- Desktop categories -->
+                <nav class="hidden md:flex items-center gap-8">
+                    {% for category in categories %}
+                        <a href="{% url 'home' %}?category={{ category.slug }}"
+                           class="nav-link relative text-sm tracking-wide pb-1 transition-colors duration-200
+                                  {% if selected_category == category.slug %}text-q-black font-medium active{% else %}text-q-gray hover:text-q-black{% endif %}">
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </nav>
+
+                <!-- Right controls -->
+                <div class="flex items-center gap-5">
+
+                    <!-- Language switcher -->
+                    <form method="post" action="{% url 'set_language' %}" class="hidden lg:flex items-center gap-1">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <button name="language" value="kk"
+                                class="text-[11px] tracking-widest uppercase py-0.5 transition-colors
+                                       {% if current_language == 'kk' %}text-q-black font-semibold{% else %}text-q-gray hover:text-q-black{% endif %}">ҚАЗ</button>
+                        <span class="text-q-border text-xs mx-0.5">/</span>
+                        <button name="language" value="ru"
+                                class="text-[11px] tracking-widest uppercase py-0.5 transition-colors
+                                       {% if current_language == 'ru' %}text-q-black font-semibold{% else %}text-q-gray hover:text-q-black{% endif %}">РУС</button>
+                        <span class="text-q-border text-xs mx-0.5">/</span>
+                        <button name="language" value="en"
+                                class="text-[11px] tracking-widest uppercase py-0.5 transition-colors
+                                       {% if current_language == 'en' %}text-q-black font-semibold{% else %}text-q-gray hover:text-q-black{% endif %}">EN</button>
+                    </form>
+
+                    <!-- Auth -->
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="hidden md:block text-sm text-q-gray hover:text-q-black transition-colors">{% translate "nav.cabinet" %}</a>
+                        <a href="{% url 'logout' %}" class="hidden md:block text-sm text-q-gray hover:text-q-black transition-colors">{% translate "nav.logout" %}</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="hidden md:block text-sm text-q-gray hover:text-q-black transition-colors">{% translate "nav.login" %}</a>
+                        <a href="{% url 'signup' %}" class="hidden md:block text-sm text-q-gray hover:text-q-black transition-colors">{% translate "nav.signup" %}</a>
+                    {% endif %}
+
+                    <!-- Cart -->
+                    <a href="{% url 'cart_detail' %}" class="relative p-1 text-q-black hover:opacity-60 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[22px] w-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        {% if user.is_authenticated and user.cart.items.count > 0 %}
+                            <span class="absolute -top-0.5 -right-0.5 bg-q-amber text-q-black text-[10px] rounded-full h-[17px] w-[17px] flex items-center justify-center font-bold leading-none">{{ user.cart.items.count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mobile categories -->
+            <div class="md:hidden horizontal-scroll border-t border-q-border py-2.5">
+                {% for category in categories %}
+                    <a href="{% url 'home' %}?category={{ category.slug }}"
+                       class="inline-block mr-5 text-sm pb-0.5 transition-colors
+                              {% if selected_category == category.slug %}text-q-black font-semibold border-b-2 border-q-black{% else %}text-q-gray hover:text-q-black{% endif %}">
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 pt-4 w-full">
+            {% for message in messages %}
+                <div class="msg-animate px-4 py-3 rounded text-sm mb-2
+                            {% if message.tags == 'success' %}bg-[#F0F7F0] text-[#2D6A2D] border border-[#C3E0C3]
+                            {% elif message.tags == 'error' %}bg-[#FDF2F2] text-[#9B2C2C] border border-[#F5C6C6]
+                            {% else %}bg-white text-q-black border border-q-border{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="flex-grow w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-q-black text-white mt-24">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 py-14">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-white/20">
+                <div>
+                    <span class="font-serif text-2xl tracking-[0.22em]">QIYM</span>
+                    <p class="text-white/70 text-sm mt-3 leading-relaxed">{% translate "nav.site_subtitle" %}</p>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.18em] text-white/50 mb-4">Каталог</p>
+                    <div class="flex flex-col gap-2.5">
+                        {% for category in categories %}
+                            <a href="{% url 'home' %}?category={{ category.slug }}" class="text-sm text-white/75 hover:text-white transition-colors">{{ category.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.18em] text-white/50 mb-4">{% translate "nav.cabinet" %}</p>
+                    <div class="flex flex-col gap-2.5">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'profile' %}" class="text-sm text-white/75 hover:text-white transition-colors">{% translate "nav.cabinet" %}</a>
+                            <a href="{% url 'cart_detail' %}" class="text-sm text-white/75 hover:text-white transition-colors">{% translate "cart.title" %}</a>
+                            <a href="{% url 'logout' %}" class="text-sm text-white/75 hover:text-white transition-colors">{% translate "nav.logout" %}</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="text-sm text-white/75 hover:text-white transition-colors">{% translate "nav.login" %}</a>
+                            <a href="{% url 'signup' %}" class="text-sm text-white/75 hover:text-white transition-colors">{% translate "nav.signup" %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <p class="text-white/50 text-sm text-center pt-8">&copy; 2026 QIYM — {% translate "nav.footer" %}</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

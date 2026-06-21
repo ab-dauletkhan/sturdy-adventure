@@ -1,0 +1,111 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-[11px] uppercase tracking-widest text-q-gray mb-10">
+        <a href="{% url 'home' %}" class="hover:text-q-black transition-colors">QIYM</a>
+        <span>/</span>
+        <span class="text-q-black">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+
+        <!-- Image -->
+        <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4]">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                 class="w-full h-full object-cover">
+        </div>
+
+        <!-- Info -->
+        <div class="py-2">
+            {% if product.is_new_collection %}
+                <p class="text-[11px] uppercase tracking-[0.18em] text-q-gold font-semibold mb-3">{% translate "product.new_collection_badge" %}</p>
+            {% endif %}
+            <h1 class="font-serif text-3xl md:text-4xl text-q-black leading-snug mb-4">{{ product.name }}</h1>
+            <p class="text-2xl font-medium text-q-black mb-6">{{ product.price }} ₸</p>
+            <p class="text-q-gray text-sm leading-relaxed mb-8">{{ product.description }}</p>
+
+            <hr class="border-q-border mb-8">
+
+            <h3 class="text-[11px] uppercase tracking-[0.18em] text-q-gray mb-4">{% translate "product.variants_heading" %}</h3>
+            {% if variants %}
+                <div class="space-y-2.5">
+                    {% for variant in variants %}
+                        <div class="flex items-center justify-between border border-q-border rounded px-4 py-3
+                                    {% if variant.stock == 0 %}opacity-50 bg-q-light{% else %}bg-white{% endif %}">
+                            <div>
+                                <span class="text-sm font-medium">{% translate "product.size" size=variant.size %}</span>
+                                <span class="text-q-gray text-sm">,&nbsp;{% translate "product.color" color=variant.color %}</span>
+                                <span class="ml-3 text-xs {% if variant.stock > 0 %}text-[#2D6A2D]{% else %}text-[#9B2C2C]{% endif %}">
+                                    {% if variant.stock > 0 %}{% translate "product.stock" stock=variant.stock %}{% else %}{% translate "product.out_of_stock" %}{% endif %}
+                                </span>
+                            </div>
+                            {% if variant.stock > 0 %}
+                                <a href="{% url 'add_to_cart' variant.id %}"
+                                   class="text-[11px] uppercase tracking-widest bg-q-black text-white px-4 py-2 hover:bg-[#333333] transition-colors whitespace-nowrap">
+                                    {% translate "product.add_to_cart" %}
+                                </a>
+                            {% else %}
+                                <span class="text-[11px] uppercase tracking-widest text-q-gray px-4 py-2 border border-q-border cursor-not-allowed whitespace-nowrap">
+                                    {% translate "product.add_to_cart" %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-q-gray text-sm">{% translate "product.no_variants" %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="mt-20 border-t border-q-border pt-12">
+        <h2 class="font-serif text-2xl text-q-black mb-8">{% translate "product.comments_heading" count=comments|length %}</h2>
+
+        {% if comments %}
+            <div class="space-y-6 mb-10">
+                {% for comment in comments %}
+                    <div class="border-b border-q-border pb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-q-black">{{ comment.user.username }}</span>
+                            <span class="text-xs text-q-gray">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <p class="text-sm text-q-gray leading-relaxed">{{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-q-gray text-sm mb-8">{% translate "product.no_comments" %}</p>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" class="max-w-lg">
+                {% csrf_token %}
+                <div class="mb-4">
+                    {{ form.text }}
+                    {% if form.text.errors %}
+                        <p class="text-[#9B2C2C] text-xs mt-1">{{ form.text.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <button type="submit"
+                        class="bg-q-black text-white px-6 py-2.5 text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors">
+                    {% translate "product.leave_comment_btn" %}
+                </button>
+            </form>
+        {% else %}
+            <p class="text-sm text-q-gray">
+                {% translate "product.login_to_comment" %}
+                <a href="{% url 'login' %}?next={{ request.path }}"
+                   class="text-q-black underline hover:text-q-gold transition-colors">{% translate "product.login_link" %}</a>.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

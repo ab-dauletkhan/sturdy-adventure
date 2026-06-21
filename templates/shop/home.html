@@ -1,0 +1,207 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "home.title" %}{% endblock %}
+
+{% block content %}
+
+    {% if banners %}
+    <div class="swiper bannerSwiper">
+        <div class="swiper-wrapper">
+            {% for banner in banners %}
+                <div class="swiper-slide relative">
+                    {% if banner.link %}<a href="{{ banner.link }}">{% endif %}
+                    <img src="{{ banner.image.url }}" alt="{{ banner.banner_title }}"
+                         class="w-full h-[50vh] md:h-[65vh] object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end px-8 md:px-16 pb-12 md:pb-16">
+                        {% if banner.banner_title %}
+                            <h2 class="font-serif text-4xl md:text-6xl text-white mb-2 drop-shadow">{{ banner.banner_title }}</h2>
+                        {% endif %}
+                        {% if banner.banner_subtitle %}
+                            <p class="text-white/80 text-lg md:text-xl tracking-wide">{{ banner.banner_subtitle }}</p>
+                        {% endif %}
+                    </div>
+                    {% if banner.link %}</a>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+    {% endif %}
+
+    <div class="max-w-7xl mx-auto px-4 lg:px-8">
+
+        <!-- Category tiles -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 mb-14">
+            <a href="/?category=erler"
+               class="group relative overflow-hidden rounded bg-q-light h-36 flex items-center justify-center hover:bg-q-black transition-colors duration-300">
+                <span class="font-serif text-2xl tracking-[0.18em] text-q-black group-hover:text-white transition-colors duration-300">{% translate "home.cat_men" %}</span>
+            </a>
+            <a href="/?category=ayelder"
+               class="group relative overflow-hidden rounded bg-q-light h-36 flex items-center justify-center hover:bg-q-black transition-colors duration-300">
+                <span class="font-serif text-2xl tracking-[0.18em] text-q-black group-hover:text-white transition-colors duration-300">{% translate "home.cat_women" %}</span>
+            </a>
+            <a href="/?category=balalar"
+               class="group relative overflow-hidden rounded bg-q-light h-36 flex items-center justify-center hover:bg-q-black transition-colors duration-300">
+                <span class="font-serif text-2xl tracking-[0.18em] text-q-black group-hover:text-white transition-colors duration-300">{% translate "home.cat_children" %}</span>
+            </a>
+        </div>
+
+        <!-- Search & filters -->
+        <form method="GET" action="{% url 'home' %}" class="mb-14">
+            {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+
+            <div class="flex gap-2 mb-3">
+                <input type="text" name="q" value="{{ q }}"
+                       placeholder="{% translate 'home.search_placeholder' %}"
+                       class="flex-1 border border-q-border px-4 py-2.5 rounded text-sm bg-white focus:outline-none focus:border-q-amber focus:ring-1 focus:ring-q-amber transition-colors">
+                <button type="submit"
+                        class="bg-q-black text-white px-6 py-2.5 rounded text-sm tracking-wide hover:bg-[#333333] transition-colors">
+                    {% translate "home.search_button" %}
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-end gap-4 bg-white border border-q-border rounded px-4 py-3.5">
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-q-gray text-xs uppercase tracking-wide whitespace-nowrap">{% translate "home.price_label" %}</span>
+                    <input type="number" name="min_price" value="{{ min_price }}"
+                           placeholder="{% translate 'home.price_min' %}" min="0"
+                           class="w-24 border border-q-border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-q-amber">
+                    <span class="text-q-gray">—</span>
+                    <input type="number" name="max_price" value="{{ max_price }}"
+                           placeholder="{% translate 'home.price_max' %}" min="0"
+                           class="w-24 border border-q-border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-q-amber">
+                </div>
+
+                {% if all_sizes %}
+                <div class="flex items-center gap-2">
+                    <span class="text-q-gray text-xs uppercase tracking-wide">{% translate "home.size_label" %}</span>
+                    <select name="size" class="border border-q-border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-q-amber">
+                        <option value="">{% translate "home.all_option" %}</option>
+                        {% for s in all_sizes %}
+                            <option value="{{ s }}" {% if selected_size == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% if all_colors %}
+                <div class="flex items-center gap-2">
+                    <span class="text-q-gray text-xs uppercase tracking-wide">{% translate "home.color_label" %}</span>
+                    <select name="color" class="border border-q-border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-q-amber">
+                        <option value="">{% translate "home.all_option" %}</option>
+                        {% for c in all_colors %}
+                            <option value="{{ c }}" {% if selected_color == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <label class="flex items-center gap-2 text-sm cursor-pointer text-q-gray hover:text-q-black transition-colors">
+                    <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}
+                           class="rounded border-q-border">
+                    {% translate "home.in_stock" %}
+                </label>
+
+                <button type="submit"
+                        class="bg-q-black text-white px-4 py-1.5 rounded text-xs uppercase tracking-widest hover:bg-[#333333] transition-colors">
+                    {% translate "home.apply_filter" %}
+                </button>
+
+                {% if has_filters %}
+                    <a href="{% url 'home' %}{% if selected_category %}?category={{ selected_category }}{% endif %}"
+                       class="text-xs text-q-gray hover:text-q-black transition-colors underline">{% translate "home.clear_filter" %}</a>
+                {% endif %}
+            </div>
+
+            <p class="text-xs text-q-gray mt-2.5 tracking-wide">{% translate "home.products_found" count=products|length %}</p>
+        </form>
+
+        <!-- New collection -->
+        {% if new_collection_products and not has_filters %}
+        <section class="mb-16">
+            <div class="flex items-end justify-between mb-7">
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.18em] text-q-gold font-semibold mb-1.5">{% translate "home.new_badge" %}</p>
+                    <h2 class="font-serif text-3xl text-q-black">{% translate "home.new_collection_section" %}</h2>
+                </div>
+                <a href="{% url 'new_collection' %}"
+                   class="hidden md:inline-block text-xs uppercase tracking-widest text-q-gray hover:text-q-black border-b border-q-border hover:border-q-black pb-0.5 transition-colors">
+                    {% translate "home.more_details" %} →
+                </a>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {% for product in new_collection_products %}
+                <div class="product-card group">
+                    <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4] relative">
+                        <a href="{% url 'product_detail' product.pk %}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                 class="product-img w-full h-full object-cover">
+                        </a>
+                        <span class="absolute top-2 left-2 bg-q-black text-white text-[10px] px-2 py-0.5 tracking-widest uppercase">{% translate "home.new_badge" %}</span>
+                    </div>
+                    <div class="pt-2.5">
+                        <a href="{% url 'product_detail' product.pk %}"
+                           class="text-sm font-medium text-q-black hover:text-q-gold transition-colors block truncate">{{ product.name }}</a>
+                        <p class="text-sm text-q-gray mt-0.5">{{ product.price }} ₸</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- All products -->
+        <section class="mb-16">
+            <h2 class="font-serif text-3xl text-q-black mb-7">{% translate "home.all_clothes" %}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {% for product in products %}
+                <div class="product-card group">
+                    <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4] relative">
+                        <a href="{% url 'product_detail' product.pk %}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                 class="product-img w-full h-full object-cover">
+                        </a>
+                        {% if product.is_new_collection %}
+                            <span class="absolute top-2 left-2 bg-q-black text-white text-[10px] px-2 py-0.5 tracking-widest uppercase">{% translate "home.new_badge" %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pt-3">
+                        <a href="{% url 'product_detail' product.pk %}"
+                           class="text-sm font-medium text-q-black hover:text-q-gold transition-colors">{{ product.name }}</a>
+                        <p class="text-sm text-q-gray mt-0.5">{{ product.price }} ₸</p>
+                        <a href="{% url 'product_detail' product.pk %}"
+                           class="mt-2.5 inline-block text-[11px] uppercase tracking-widest border border-q-black text-q-black px-4 py-1.5 hover:bg-q-black hover:text-white transition-colors">
+                            {% translate "home.more_details" %}
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                    <p class="col-span-full text-center text-q-gray py-20 font-serif text-xl">{% translate "home.no_products" %}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.querySelector('.bannerSwiper')) {
+        new Swiper('.bannerSwiper', {
+            loop: true,
+            autoplay: { delay: 5000, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        });
+    }
+});
+</script>
+{% endblock %}

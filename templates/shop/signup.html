@@ -1,0 +1,52 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "auth.signup_title" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-10">
+            <a href="{% url 'home' %}" class="font-serif text-3xl tracking-[0.22em] text-q-black hover:text-q-gold transition-colors">QIYM</a>
+        </div>
+        <h1 class="font-serif text-2xl text-q-black text-center mb-8">{% translate "auth.signup_heading" %}</h1>
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="bg-[#FDF2F2] text-[#9B2C2C] border border-[#F5C6C6] px-4 py-3 rounded text-sm">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            <div>
+                <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.username" %}</label>
+                {{ form.username }}
+                {% if form.username.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.username.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.email" %}</label>
+                {{ form.email }}
+                {% if form.email.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.password" %}</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.password1.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-[11px] uppercase tracking-wide text-q-gray mb-1.5">{% translate "form.password_confirm" %}</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}<p class="text-[#9B2C2C] text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+            </div>
+            <button type="submit"
+                    class="w-full bg-q-black text-white py-3.5 text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors mt-2">
+                {% translate "auth.signup_btn" %}
+            </button>
+        </form>
+        <p class="mt-6 text-center text-sm text-q-gray">
+            {% translate "auth.have_account" %}
+            <a href="{% url 'login' %}" class="text-q-black underline hover:text-q-gold transition-colors">{% translate "auth.login_link" %}</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

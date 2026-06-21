@@ -1,0 +1,65 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load i18n_tags %}
+
+{% block title %}{% translate "cat_new.title" cat=category.name %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+    <h1 class="font-serif text-4xl text-q-black mb-12">{% translate "cat_new.heading" cat=category.name %}</h1>
+
+    {% if new_products %}
+    <section class="mb-16">
+        <div class="mb-7">
+            <p class="text-[11px] uppercase tracking-[0.18em] text-q-gold font-semibold mb-1.5">{% translate "cat_new.new_badge" %}</p>
+            <h2 class="font-serif text-2xl text-q-black">{% translate "cat_new.new_collection" %}</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {% for product in new_products %}
+            <div class="product-card group">
+                <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4] relative">
+                    <a href="{% url 'product_detail' product.pk %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                             class="product-img w-full h-full object-cover">
+                    </a>
+                    <span class="absolute top-2 left-2 bg-q-black text-white text-[10px] px-2 py-0.5 tracking-widest uppercase">{% translate "cat_new.new_badge" %}</span>
+                </div>
+                <div class="pt-3">
+                    <a href="{% url 'product_detail' product.pk %}"
+                       class="text-sm font-medium text-q-black hover:text-q-gold transition-colors">{{ product.name }}</a>
+                    <p class="text-sm text-q-gray mt-0.5">{{ product.price }} ₸</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+        <p class="text-q-gray text-sm mb-12">{% translate "cat_new.no_new" cat=category.name %}</p>
+    {% endif %}
+
+    <section>
+        <h2 class="font-serif text-2xl text-q-black mb-7">{% translate "cat_new.all_clothes" cat=category.name|lower %}</h2>
+        {% if regular_products %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {% for product in regular_products %}
+            <div class="product-card group">
+                <div class="overflow-hidden rounded bg-white border border-q-border aspect-[3/4]">
+                    <a href="{% url 'product_detail' product.pk %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                             class="product-img w-full h-full object-cover">
+                    </a>
+                </div>
+                <div class="pt-3">
+                    <a href="{% url 'product_detail' product.pk %}"
+                       class="text-sm font-medium text-q-black hover:text-q-gold transition-colors">{{ product.name }}</a>
+                    <p class="text-sm text-q-gray mt-0.5">{{ product.price }} ₸</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-q-gray text-sm">{% translate "cat_new.no_products" cat=category.name %}</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
